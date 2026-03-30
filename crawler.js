@@ -187,10 +187,27 @@ async function main() {
     storeStats
   };
 
-  const publicDir = path.join(__dirname, 'public');
-  if (!fs.existsSync(publicDir)) fs.mkdirSync(publicDir);
-  fs.writeFileSync(path.join(publicDir, 'data.json'), JSON.stringify(output, null, 2));
-  console.log(`数据生成完成，共 ${merged.length} 条信息`);
+const publicDir = path.join(__dirname, 'public');
+console.log('当前工作目录:', __dirname);
+console.log('public 目录路径:', publicDir);
+
+if (!fs.existsSync(publicDir)) {
+  console.log('创建 public 目录...');
+  fs.mkdirSync(publicDir);
+}
+
+const dataFilePath = path.join(publicDir, 'data.json');
+console.log('准备写入文件:', dataFilePath);
+
+fs.writeFileSync(dataFilePath, JSON.stringify(output, null, 2));
+console.log('文件写入成功！文件大小:', fs.statSync(dataFilePath).size, '字节');
+
+// 验证文件是否存在
+if (fs.existsSync(dataFilePath)) {
+  console.log('✓ data.json 文件确认存在');
+} else {
+  console.error('✗ data.json 文件不存在！');
+}
 }
 
 main().catch(console.error);
