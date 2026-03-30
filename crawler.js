@@ -138,70 +138,70 @@ function detectStore(title, content) {
   
   return '其他';
 }
-// 判断是否与应用商店/应用生态相关
+// 判断是否与应用商店/应用生态相关（放宽版）
 function isAppEcoRelated(title, content) {
   const text = (title + ' ' + content).toLowerCase();
   
-  // 核心关键词（必须包含至少1个）
+  // ========== 1. 必须保留的核心关键词 ==========
   const coreKeywords = [
     'app store', 'google play', '应用商店', '应用市场', '软件商店',
     'app发布', 'app更新', '应用发布', '应用更新', '应用上架',
     'ios应用', 'android应用', '安卓应用', '苹果应用',
     '应用宝', 'oppo软件商店', 'vivo应用商店', '小米应用商店',
-    '华为应用市场', 'app下载', '应用下载'
+    '华为应用市场', 'app下载', '应用下载', '开发者平台'
   ];
   
-  // 扩展关键词（辅助判断）
-  const extendedKeywords = [
-    'app', '应用', '软件', '商店', '市场', '发布', '更新',
-    '上架', '下载', 'ios', 'android', '安卓', '苹果',
-    '开发者', 'app store', 'google play', 'play store'
-  ];
+  // 只要包含核心关键词，直接保留
+  for (const keyword of coreKeywords) {
+    if (text.includes(keyword)) return true;
+  }
   
-  // 排除关键词（如果包含这些词，直接过滤掉）
+  // ========== 2. 排除关键词（明显不相关的） ==========
   const excludeKeywords = [
-    '猪价', '生猪', '猪肉', '油价', '石油', '原油', '期货', '股市', 'A股',
-    '基金', '债券', '理财', '银行', '保险', '房价', '房地产',
-    '军事', '战争', '导弹', '空袭', '伊朗', '美国副总统', '特朗普',
-    '选举', '政治', '外交', '航母', '军舰', '航天', '火箭',
-    '足球', '篮球', '体育', '比赛', '奥运会',
-    '法院', '判决', '起诉', '律师', '侵权', '赔偿',
-    '离婚', '明星', '八卦', '综艺', '电视剧', '电影',
-    '食品', '零食', '餐饮', '火锅', '奶茶', '咖啡',
-    '汽车', '电动车', '充电桩', '电池', '芯片', '半导体',
-    '钢铁', '煤炭', '化工', '化肥', '水泥', '建材'
+    '猪价', '生猪', '猪肉', '油价', '原油', '期货', 'A股',
+    '基金', '债券', '理财', '银行', '保险', '房价',
+    '战争', '导弹', '空袭', '伊朗', '美国副总统',
+    '足球', '篮球', '奥运会', '世界杯',
+    '法院', '判决', '起诉', '律师', '侵权赔偿',
+    '离婚', '明星八卦', '综艺节目', '电视剧'
   ];
   
-  // 1. 检查排除关键词（只要包含一个，直接过滤掉）
   for (const keyword of excludeKeywords) {
     if (text.includes(keyword)) {
-      console.log(`  过滤掉: 包含排除词 "${keyword}"`);
       return false;
     }
   }
   
-  // 2. 检查核心关键词（必须包含至少1个）
-  for (const keyword of coreKeywords) {
-    if (text.includes(keyword)) {
-      return true;
-    }
-  }
+  // ========== 3. 扩展关键词（辅助判断） ==========
+  const extendedKeywords = [
+    'app', '应用', '软件', '商店', '市场', '发布', '更新',
+    '上架', '下载', 'ios', 'android', '安卓', '苹果',
+    '开发者', '平台', '生态', '移动应用', '手机应用'
+  ];
   
-  // 3. 如果包含多个扩展关键词，也可能相关
+  // 统计命中数量
   let matchCount = 0;
   for (const keyword of extendedKeywords) {
     if (text.includes(keyword)) matchCount++;
   }
   
-  // 至少包含3个扩展关键词才保留（减少误判）
-  if (matchCount >= 3) {
-    console.log(`  扩展关键词命中 ${matchCount} 个`);
+  // 命中2个以上扩展关键词就保留（原来需要3个）
+  if (matchCount >= 2) {
     return true;
   }
   
-  // 4. 标题长度较短且包含"应用"或"软件"的也保留
-  if (title.length < 50 && (text.includes('应用') || text.includes('软件'))) {
-    return true;
+  // ========== 4. 科技新闻相关（保留） ==========
+  const techKeywords = [
+    '科技', '智能', '人工智能', 'AI', '5G', '物联网',
+    '芯片', '处理器', '手机', '平板', '电脑', '数码',
+    '互联网', '平台', '算法', '数据', '云计算', '大模型',
+    '机器人', '自动驾驶', 'AR', 'VR', '元宇宙'
+  ];
+  
+  for (const keyword of techKeywords) {
+    if (text.includes(keyword)) {
+      return true;
+    }
   }
   
   return false;
