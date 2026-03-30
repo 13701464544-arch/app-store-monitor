@@ -290,6 +290,19 @@ async function main() {
       item.links = [item.link];
     });
     allItems.push(...items);
+    // 在抓取完所有源之后，添加过滤
+console.log(`抓取完成，共 ${allItems.length} 条原始信息`);
+
+// 应用商店生态过滤
+const beforeFilter = allItems.length;
+allItems = allItems.filter(item => {
+  const related = isAppEcoRelated(item.title, item.content);
+  if (!related) {
+    console.log(`  过滤: ${item.title.substring(0, 60)}...`);
+  }
+  return related;
+});
+console.log(`过滤后: ${allItems.length} 条 (过滤掉 ${beforeFilter - allItems.length} 条无关信息)`);
     
     await new Promise(r => setTimeout(r, 1000));
   }
