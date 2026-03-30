@@ -2,7 +2,8 @@ name: 定时爬取并部署
 
 on:
   schedule:
-    - cron: '0 * * * *'
+    - cron: '50 0 * * *'   # 每天 08:50（北京时间 16:50）
+    - cron: '0 6 * * *'    # 每天 06:00 UTC = 北京时间 14:00
   workflow_dispatch:
 
 jobs:
