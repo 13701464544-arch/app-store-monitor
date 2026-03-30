@@ -12,22 +12,33 @@ const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
   //{ name: '腾讯新闻', url: 'https://news.qq.com/', type: 'html' },
   //{ name: '今日头条', url: 'https://www.toutiao.com/', type: 'html' },
   //{ name: 'YouTube', url: 'https://www.youtube.com/feed/trending', type: 'html' },
-  //{ name: 'Donews', url: 'https://www.donews.com/', type: 'html' },
-  //{ name: '华尔街', url: 'https://www.wsj.com/', type: 'html' }
+   //{ name: '华尔街', url: 'https://www.wsj.com/', type: 'html' }
 
 const SOURCES = [
-  // 官方商店动态
-  { name: 'Apple Newsroom', url: 'https://www.apple.com/newsroom/rss-feed.xml', type: 'rss' },
-  { name: 'Google Play 博客', url: 'https://blog.google/products/google-play/rss/', type: 'rss' },
+  // ========== 官方应用商店动态 ==========
+  { name: 'Apple App Store 新闻', url: 'https://www.apple.com/newsroom/rss-feed.xml', type: 'rss' },
+  { name: 'Google Play 官方博客', url: 'https://blog.google/products/google-play/rss/', type: 'rss' },
   { name: '小米应用商店开发者', url: 'https://dev.mi.com/console/doc/rss?cid=85', type: 'rss' },
-  { name: 'OPPO 开放平台', url: 'https://open.oppomobile.com/new/development', type: 'html' },
-  { name: 'VIVO 开放平台', url: 'https://dev.vivo.com.cn/document', type: 'html' },
+  { name: 'OPPO 开放平台', url: 'https://open.oppomobile.com/bbs/forum.php?mod=forumdisplay&fid=2', type: 'html' },
+  { name: 'VIVO 开发者社区', url: 'https://dev.vivo.com.cn/document', type: 'html' },
+  { name: '华为开发者联盟', url: 'https://developer.huawei.com/consumer/cn/forum/block/block-001', type: 'html' },
   
-  // 科技媒体（覆盖应用商店资讯）
-  { name: '36氪-应用', url: 'https://36kr.com/feed', type: 'rss' },
-  { name: '虎嗅-科技', url: 'https://www.huxiu.com/rss/0.xml', type: 'rss' },
-  { name: '品玩', url: 'https://www.pingwest.com/feed', type: 'rss' },
-  { name: '钛媒体', url: 'https://www.tmtpost.com/rss.xml', type: 'rss' },
+  // ========== 应用评测和推荐网站 ==========
+  { name: 'App Store 推荐', url: 'https://www.appstore.com/', type: 'html' },
+  { name: 'Google Play 推荐', url: 'https://play.google.com/store/apps', type: 'html' },
+  
+  // ========== 移动应用行业媒体 ==========
+  { name: 'AppAdvice', url: 'https://appadvice.com/feed', type: 'rss' },
+  { name: 'Android Police', url: 'https://www.androidpolice.com/feed', type: 'rss' },
+  { name: '9to5Google', url: 'https://9to5google.com/feed', type: 'rss' },
+  { name: '9to5Mac', url: 'https://9to5mac.com/feed', type: 'rss' },
+  
+  // ========== 国内应用相关媒体 ==========
+  { name: '36氪-APP', url: 'https://36kr.com/feed', type: 'rss' },  // 后续用关键词过滤
+  { name: '品玩-应用', url: 'https://www.pingwest.com/feed', type: 'rss' },
+  { name: '钛媒体-应用', url: 'https://www.tmtpost.com/rss.xml', type: 'rss' },
+
+   { name: '虎嗅-科技', url: 'https://www.huxiu.com/rss/0.xml', type: 'rss' },
   { name: 'Donews', url: 'https://www.donews.com/rss.xml', type: 'rss' },
 ];
 
