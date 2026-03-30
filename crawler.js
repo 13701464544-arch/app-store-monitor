@@ -220,6 +220,7 @@ async function main() {
       item.links = [item.link];
     });
     allItems.push(...items);
+    
     await new Promise(r => setTimeout(r, 1000));
   }
 
