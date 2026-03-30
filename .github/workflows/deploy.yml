@@ -27,28 +27,24 @@ jobs:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
         run: npm run crawl
 
-      - name: 列出所有文件（调试用）
+      - name: 准备部署文件
         run: |
-          echo "当前目录结构："
+          # 复制文件到根目录
+          cp public/index.html ./
+          cp public/data.json ./
+          # 创建 .nojekyll 文件，禁用 Jekyll 处理
+          touch .nojekyll
+          echo "部署文件列表："
           ls -la
-          echo ""
-          echo "public 目录内容："
-          if [ -d "public" ]; then
-            ls -la public/
-          else
-            echo "public 目录不存在！"
-          fi
-          echo ""
-          echo "查找所有 data.json 文件："
-          find . -name "data.json" -type f 2>/dev/null || echo "未找到 data.json"
 
       - name: 部署到 GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./public
+          publish_dir: ./
           publish_branch: gh-pages
           force_orphan: true
           user_name: 'github-actions[bot]'
           user_email: 'github-actions[bot]@users.noreply.github.com'
-          commit_message: '更新数据: ${{ github.run_id }}'
+          commit_message: '部署: index.html, data.json, .nojekyll'
+          keep_files: false
