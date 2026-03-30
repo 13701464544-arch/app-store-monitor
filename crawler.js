@@ -21,7 +21,6 @@ const SOURCES = [
   { name: '小米应用商店开发者', url: 'https://dev.mi.com/console/doc/rss?cid=85', type: 'rss' },
   { name: 'OPPO 开放平台', url: 'https://open.oppomobile.com/bbs/forum.php?mod=forumdisplay&fid=2', type: 'html' },
   { name: 'VIVO 开发者社区', url: 'https://dev.vivo.com.cn/document', type: 'html' },
-  { name: '华为开发者联盟', url: 'https://developer.huawei.com/consumer/cn/forum/block/block-001', type: 'html' },
   
   // ========== 应用评测和推荐网站 ==========
   { name: 'App Store 推荐', url: 'https://www.appstore.com/', type: 'html' },
@@ -34,9 +33,12 @@ const SOURCES = [
   { name: '9to5Mac', url: 'https://9to5mac.com/feed', type: 'rss' },
   
   // ========== 国内应用相关媒体 ==========
-  { name: '36氪-APP', url: 'https://36kr.com/feed', type: 'rss' },  // 后续用关键词过滤
-  { name: '品玩-应用', url: 'https://www.pingwest.com/feed', type: 'rss' },
-  { name: '钛媒体-应用', url: 'https://www.tmtpost.com/rss.xml', type: 'rss' },
+   { name: 'IT之家', url: 'https://www.ithome.com/rss/', type: 'rss' },
+  { name: '鞭牛士', url: 'https://www.bianews.com/feed', type: 'rss' },
+  { name: '36氪', url: 'https://36kr.com/feed', type: 'rss' },
+  { name: '品玩', url: 'https://www.pingwest.com/feed', type: 'rss' },
+  { name: '钛媒体', url: 'https://www.tmtpost.com/rss.xml', type: 'rss' },
+  { name: '金融界-科技', url: 'https://finance.jrj.com.cn/rss/tech.xml', type: 'rss' },
 
    { name: '虎嗅-科技', url: 'https://www.huxiu.com/rss/0.xml', type: 'rss' },
   { name: 'Donews', url: 'https://www.donews.com/rss.xml', type: 'rss' },
