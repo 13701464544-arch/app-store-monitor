@@ -291,17 +291,19 @@ async function main() {
     });
     allItems.push(...items);
     // 在抓取完所有源之后，添加过滤
-// 过滤并统计被过滤的原因
+// 在 main() 函数中，抓取完所有源之后
+
 console.log(`抓取完成，共 ${allItems.length} 条原始信息`);
 
-// 分类统计
+// 分类统计变量
 let coreMatch = 0;
 let excludeHit = 0;
 let extendedMatch = 0;
 let techMatch = 0;
 let filteredOut = [];
 
-const beforeFilter = allItems.length;
+// 应用过滤（注意：这里不要重复声明 beforeFilter）
+const originalCount = allItems.length;  // 改用 originalCount 避免重复
 allItems = allItems.filter(item => {
   const text = (item.title + ' ' + item.content).toLowerCase();
   
@@ -348,14 +350,15 @@ allItems = allItems.filter(item => {
   return false;
 });
 
-console.log(`过滤后: ${allItems.length} 条`);
+console.log(`过滤后: ${allItems.length} 条 (过滤掉 ${originalCount - allItems.length} 条)`);
 console.log(`  - 核心关键词命中: ${coreMatch}`);
 console.log(`  - 扩展关键词命中(≥2): ${extendedMatch}`);
 console.log(`  - 科技关键词命中: ${techMatch}`);
 console.log(`  - 排除词命中: ${excludeHit}`);
-console.log(`\n被过滤的示例标题:`);
-filteredOut.slice(0, 10).forEach(f => console.log(`  ❌ ${f.reason}: ${f.title.substring(0, 80)}`));
-
+if (filteredOut.length > 0) {
+  console.log(`\n被过滤的示例标题:`);
+  filteredOut.slice(0, 10).forEach(f => console.log(`  ❌ ${f.reason}: ${f.title.substring(0, 80)}`));
+}
 // 应用商店生态过滤
 const beforeFilter = allItems.length;
 allItems = allItems.filter(item => {
