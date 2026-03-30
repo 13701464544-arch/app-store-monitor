@@ -353,13 +353,12 @@
         container.innerHTML = html;
     }
 
-    // 计算下次爬取时间（每天 14:00 和 16:50）
 function calculateNextCrawlTime() {
     const now = new Date();
     // 设定爬取时间（北京时间）
     const crawlTimes = [
-        { hour: 14, minute: 0 },   // 14:00
-        { hour: 16, minute: 50 }   // 16:50
+        { hour: 8, minute: 50 },   // 08:50
+        { hour: 14, minute: 0 }    // 14:00
     ];
     
     // 获取当前北京时间（UTC+8）
@@ -368,11 +367,9 @@ function calculateNextCrawlTime() {
     };
     
     const beijingNow = getBeijingTime(now);
-    const currentHour = beijingNow.getUTCHours();
-    const currentMinute = beijingNow.getUTCMinutes();
-    const currentDay = beijingNow.getUTCDate();
-    const currentMonth = beijingNow.getUTCMonth();
     const currentYear = beijingNow.getUTCFullYear();
+    const currentMonth = beijingNow.getUTCMonth();
+    const currentDay = beijingNow.getUTCDate();
     
     // 找出下一个爬取时间
     let nextTime = null;
@@ -397,8 +394,6 @@ function calculateNextCrawlTime() {
     
     // 如果今天已经没有爬取时间了，取明天的第一个
     if (!nextTime) {
-        const tomorrow = new Date(Date.UTC(currentYear, currentMonth, currentDay + 1, 0, 0, 0));
-        const beijingTomorrow = getBeijingTime(tomorrow);
         const firstTime = crawlTimes[0];
         nextTime = {
             hour: firstTime.hour,
@@ -407,7 +402,8 @@ function calculateNextCrawlTime() {
         };
     }
     
-    return new Date(nextTime.timestamp - (8 * 60 * 60 * 1000)); // 转换回 UTC
+    // 转换回 UTC 时间返回
+    return new Date(nextTime.timestamp - (8 * 60 * 60 * 1000));
 }
 
 function updateTimeInfo() {
