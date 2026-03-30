@@ -1,1 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>应用生态 - 抬头看路</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif; }
+        body { background: #f5f7fc; padding: 2rem; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .header { background: white; border-radius: 2rem; padding: 1.5rem 2rem; margin-bottom: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .header h1 { font-size: 2rem; background: linear-gradient(135deg, #1e3a5f, #2b6a9f); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 0.5rem; }
+        .time-info { display: flex; gap: 2rem; flex-wrap: wrap; color: #4b6f8c; font-weight: 500; margin-top: 0.8rem; }
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem; }
+        .stat-card { background: white; border-radius: 1.5rem; padding: 1rem; text-align: center; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #eef2f8; }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); background: #fefefe; }
+        .stat-name { font-size: 1rem; font-weight: 600; color: #2c5a7a; }
+        .stat-count { font-size: 2rem; font-weight: 800; color: #0f2e42; }
+        .section-title { font-size: 1.5rem; font-weight: 700; margin: 1.5rem 0 1rem; padding-left: 0.5rem; border-left: 6px solid #2b6a9f; }
+        .news-list { display: flex; flex-direction: column; gap: 1.2rem; }
+        .news-item { background: white; border-radius: 1.5rem; padding: 1.2rem 1.5rem; box-shadow: 0 2px 6px rgba(0,0,0,0.04); transition: all 0.2s; }
+        .news-header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; margin-bottom: 0.8rem; }
+        .store-badge { background: #e9f0f9; padding: 0.2rem 0.8rem; border-radius: 2rem; font-size: 0.8rem; font-weight: 600; color: #1d5b8e; }
+        .time { font-size: 0.75rem; color: #7e95ae; }
+        .news-title { font-size: 1.1rem; font-weight: 700; margin: 0.5rem 0; color: #1e3a5f; }
+        .ai-block { display: flex; flex-wrap: wrap; gap: 1rem; margin: 0.8rem 0; background: #f8fafd; padding: 0.8rem; border-radius: 1rem; }
+        .summary, .impact { flex: 1; font-size: 0.9rem; line-height: 1.4; }
+        .summary strong, .impact strong { color: #2b6a9f; display: block; margin-bottom: 0.2rem; }
+        .links { margin-top: 0.5rem; display: flex; gap: 1rem; flex-wrap: wrap; }
+        .links a { background: #eef2fa; padding: 0.3rem 0.8rem; border-radius: 2rem; font-size: 0.8rem; text-decoration: none; color: #1d5b8e; transition: 0.1s; }
+        .links a:hover { background: #d9e4f0; }
+        .loading { text-align: center; padding: 3rem; color: #6c86a3; }
+        @media (max-width: 700px) { body { padding: 1rem; } .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>📱 应用生态 - 抬头看路</h1>
+        <div class="time-info" id="timeInfo">
+            <span>🕒 最近爬取: --</span>
+            <span>⏳ 下次爬取倒计时: --</span>
+        </div>
+    </div>
+    <div class="stats-grid" id="statsGrid"></div>
+    <div id="storeSections"></div>
+</div>
 
+<script>
+    const STORES = ['App Store', 'Google Play', '应用宝', 'OPPO软件商店', 'VIVO应用商店', '小米应用商店'];
+    let currentData = null;
+
+    async function fetchData() {
+        try {
+            const res = await fetch('data.json');   // 修改为读取静态文件
+            currentData = await res.json();
+            renderStats();
+            renderSections();
+            updateTimeInfo();
+        } catch (err) {
+            console.error('获取数据失败', err);
+        }
+    }
+
+    function renderStats() {
+        const stats = currentData?.storeStats || {};
+        const grid = document.getElementById('statsGrid');
+        grid.innerHTML = STORES.map(store => `
+            <div class="stat-card" data-store="${store}">
+                <div class="stat-name">${store}</div>
+                <div class="stat-count">${stats[store] || 0}</div>
+            </div>
+        `).join('');
+        document.querySelectorAll('.stat-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const store = card.dataset.store;
+                const target = document.getElementById(`section-${store.replace(/\s/g, '')}`);
+                if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+    }
+
+    function renderSections() {
+        const items = currentData?.items || [];
+        const grouped = {};
+        STORES.forEach(s => grouped[s] = []);
+        items.forEach(item => {
+            if (grouped[item.store]) grouped[item.store].push(item);
+            else grouped[item.store] = [item];
+        });
+
+        const container = document.getElementById('storeSections');
+        let html = '';
+        for (const store of STORES) {
+            const storeItems = grouped[store] || [];
+            if (storeItems.length === 0) continue;
+            html += `<div id="section-${store.replace(/\s/g, '')}" class="section-title">📌 ${store} · ${storeItems.length}条动态</div>`;
+            html += `<div class="news-list">`;
+            storeItems.forEach(item => {
+                html += `
+                    <div class="news-item">
+                        <div class="news-header">
+                            <span class="store-badge">${item.store}</span>
+                            <span class="time">${new Date(item.pubTime).toLocaleString()}</span>
+                        </div>
+                        <div class="news-title">${escapeHtml(item.title)}</div>
+                        <div class="ai-block">
+                            <div class="summary"><strong>📝 核心提炼</strong> ${escapeHtml(item.summary || '暂无')}</div>
+                            <div class="impact"><strong>⚡ 影响分析</strong> ${escapeHtml(item.impact || '暂无')}</div>
+                        </div>
+                        <div class="links">
+                            ${item.links.map(link => `<a href="${escapeHtml(link)}" target="_blank" rel="noopener noreferrer">🔗 相关链接</a>`).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+            html += `</div>`;
+        }
+        if (html === '') html = '<div class="loading">暂无数据，等待首次爬取...</div>';
+        container.innerHTML = html;
+    }
+
+    function updateTimeInfo() {
+        if (!currentData) return;
+        const last = new Date(currentData.lastCrawl);
+        const next = new Date(currentData.nextCrawl);
+        document.getElementById('timeInfo').innerHTML = `
+            <span>🕒 最近爬取: ${last.toLocaleString()}</span>
+            <span>⏳ 下次爬取倒计时: <span id="countdown">--</span></span>
+        `;
+        function updateCountdown() {
+            const now = new Date();
+            const diff = next - now;
+            if (diff <= 0) {
+                document.getElementById('countdown').innerText = '即将开始';
+                return;
+            }
+            const hours = Math.floor(diff / 3600000);
+            const minutes = Math.floor((diff % 3600000) / 60000);
+            const seconds = Math.floor((diff % 60000) / 1000);
+            document.getElementById('countdown').innerText = `${hours}时${minutes}分${seconds}秒`;
+        }
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    fetchData();
+    setInterval(fetchData, 60000);
+</script>
+</body>
+</html>
