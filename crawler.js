@@ -291,7 +291,70 @@ async function main() {
     });
     allItems.push(...items);
     // 在抓取完所有源之后，添加过滤
+// 过滤并统计被过滤的原因
 console.log(`抓取完成，共 ${allItems.length} 条原始信息`);
+
+// 分类统计
+let coreMatch = 0;
+let excludeHit = 0;
+let extendedMatch = 0;
+let techMatch = 0;
+let filteredOut = [];
+
+const beforeFilter = allItems.length;
+allItems = allItems.filter(item => {
+  const text = (item.title + ' ' + item.content).toLowerCase();
+  
+  // 检查排除词
+  const excludeKeywords = ['猪价', '生猪', '猪肉', '油价', '原油', '期货', 'A股', '基金', '债券', '理财', '银行', '保险', '房价', '战争', '导弹', '空袭', '伊朗', '美国副总统', '足球', '篮球', '奥运会', '世界杯', '法院', '判决', '起诉', '律师', '侵权赔偿', '离婚', '明星八卦'];
+  for (const kw of excludeKeywords) {
+    if (text.includes(kw)) {
+      excludeHit++;
+      filteredOut.push({ title: item.title, reason: `排除词: ${kw}` });
+      return false;
+    }
+  }
+  
+  // 检查核心关键词
+  const coreKeywords = ['app store', 'google play', '应用商店', '应用市场', '软件商店', 'app发布', 'app更新', '应用发布', '应用更新', '应用上架', 'ios应用', 'android应用', '安卓应用', '苹果应用', '应用宝', 'oppo软件商店', 'vivo应用商店', '小米应用商店', '华为应用市场', 'app下载', '应用下载', '开发者平台'];
+  for (const kw of coreKeywords) {
+    if (text.includes(kw)) {
+      coreMatch++;
+      return true;
+    }
+  }
+  
+  // 检查扩展关键词
+  const extendedKeywords = ['app', '应用', '软件', '商店', '市场', '发布', '更新', '上架', '下载', 'ios', 'android', '安卓', '苹果', '开发者', '平台', '生态', '移动应用', '手机应用'];
+  let matchCount = 0;
+  for (const kw of extendedKeywords) {
+    if (text.includes(kw)) matchCount++;
+  }
+  if (matchCount >= 2) {
+    extendedMatch++;
+    return true;
+  }
+  
+  // 检查科技关键词
+  const techKeywords = ['科技', '智能', '人工智能', 'AI', '5G', '物联网', '芯片', '处理器', '手机', '平板', '电脑', '数码', '互联网', '平台', '算法', '数据', '云计算', '大模型', '机器人', '自动驾驶', 'AR', 'VR', '元宇宙'];
+  for (const kw of techKeywords) {
+    if (text.includes(kw)) {
+      techMatch++;
+      return true;
+    }
+  }
+  
+  filteredOut.push({ title: item.title, reason: '无匹配' });
+  return false;
+});
+
+console.log(`过滤后: ${allItems.length} 条`);
+console.log(`  - 核心关键词命中: ${coreMatch}`);
+console.log(`  - 扩展关键词命中(≥2): ${extendedMatch}`);
+console.log(`  - 科技关键词命中: ${techMatch}`);
+console.log(`  - 排除词命中: ${excludeHit}`);
+console.log(`\n被过滤的示例标题:`);
+filteredOut.slice(0, 10).forEach(f => console.log(`  ❌ ${f.reason}: ${f.title.substring(0, 80)}`));
 
 // 应用商店生态过滤
 const beforeFilter = allItems.length;
