@@ -253,106 +253,142 @@
         }
     }
 
-    // 渲染统计卡片
-    function renderStats() {
-        const stats = currentData?.storeStats || {};
-        const grid = document.getElementById('statsGrid');
-        grid.innerHTML = STORES.map(store => `
-            <div class="stat-card" data-store="${store}">
-                <div class="stat-name">${store}</div>
-                <div class="stat-count">${stats[store] || 0}</div>
-            </div>
-        `).join('');
-        
-        // 点击卡片滚动到对应区域
-        document.querySelectorAll('.stat-card').forEach(card => {
-            card.addEventListener('click', () => {
-                const store = card.dataset.store;
-                const target = document.getElementById(`section-${store.replace(/\s/g, '')}`);
-                if (target) {
-                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            });
-        });
-    }
-
-    // 渲染各商店的信息列表
-    function renderSections() {
-        const items = currentData?.items || [];
-        
-        // 按商店分组
-        const grouped = {};
-        STORES.forEach(s => grouped[s] = []);
-        items.forEach(item => {
-            const storeName = item.store;
-            if (grouped[storeName] !== undefined) {
-                grouped[storeName].push(item);
+ // 渲染统计卡片
+function renderStats() {
+    const stats = currentData?.storeStats || {};
+    
+    // 合并 OPPO、VIVO、小米 到 OVM等其他
+    const ovmCount = (stats['OPPO软件商店'] || 0) + 
+                     (stats['VIVO应用商店'] || 0) + 
+                     (stats['小米应用商店'] || 0) +
+                     (stats['其他应用商店'] || 0) +
+                     (stats['其他'] || 0);
+    
+    const aggregatedStats = {
+        'App Store': stats['App Store'] || 0,
+        'Google Play': stats['Google Play'] || 0,
+        '应用宝': stats['应用宝'] || 0,
+        'OVM等其他': ovmCount
+    };
+    
+    const grid = document.getElementById('statsGrid');
+    grid.innerHTML = STORES.map(store => `
+        <div class="stat-card" data-store="${store}">
+            <div class="stat-name">${store}</div>
+            <div class="stat-count">${aggregatedStats[store] || 0}</div>
+        </div>
+    `).join('');
+    
+    // 点击卡片滚动到对应区域
+    document.querySelectorAll('.stat-card').forEach(card => {
+        card.addEventListener('click', () => {
+            const store = card.dataset.store;
+            let targetId = '';
+            if (store === 'OVM等其他') {
+                targetId = 'section-OVM等其他';
             } else {
-                // 如果商店不在列表中，归为"其他"
-                if (!grouped['其他']) grouped['其他'] = [];
-                grouped['其他'].push(item);
+                targetId = `section-${store.replace(/\s/g, '')}`;
+            }
+            const target = document.getElementById(targetId);
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
         });
+    });
+}
 
-        const container = document.getElementById('storeSections');
-        let html = '';
+   // 渲染各商店的信息列表
+function renderSections() {
+    const items = currentData?.items || [];
+    
+    // 定义要显示的4个分类
+    const displayCategories = ['App Store', 'Google Play', '应用宝', 'OVM等其他'];
+    
+    // 定义哪些商店归入 OVM等其他
+    const ovmCategories = ['OPPO软件商店', 'VIVO应用商店', '小米应用商店', '其他应用商店', '其他'];
+    
+    // 按显示分类分组
+    const grouped = {
+        'App Store': [],
+        'Google Play': [],
+        '应用宝': [],
+        'OVM等其他': []
+    };
+    
+    items.forEach(item => {
+        const storeName = item.store;
+        if (storeName === 'App Store') {
+            grouped['App Store'].push(item);
+        } else if (storeName === 'Google Play') {
+            grouped['Google Play'].push(item);
+        } else if (storeName === '应用宝') {
+            grouped['应用宝'].push(item);
+        } else if (ovmCategories.includes(storeName)) {
+            grouped['OVM等其他'].push(item);
+        } else {
+            // 其他未分类的也归入 OVM等其他
+            grouped['OVM等其他'].push(item);
+        }
+    });
+    
+    const container = document.getElementById('storeSections');
+    let html = '';
+    
+    for (const category of displayCategories) {
+        const categoryItems = grouped[category] || [];
+        if (categoryItems.length === 0) continue;
         
-        for (const store of STORES) {
-            const storeItems = grouped[store] || [];
-            if (storeItems.length === 0) continue;
-            
-            html += `<div id="section-${store.replace(/\s/g, '')}" class="section-title">📌 ${store} · ${storeItems.length}条动态</div>`;
-            html += `<div class="news-list">`;
-            
-            storeItems.forEach(item => {
-                // 格式化发布时间
-                let pubTimeStr = '时间未知';
-                if (item.pubTime) {
-                    try {
-                        const pubDate = new Date(item.pubTime);
-                        if (!isNaN(pubDate.getTime())) {
-                            pubTimeStr = pubDate.toLocaleString('zh-CN', {
-                                year: 'numeric',
-                                month: '2-digit',
-                                day: '2-digit',
-                                hour: '2-digit',
-                                minute: '2-digit',
-                                hour12: false
-                            });
-                        }
-                    } catch(e) {
-                        pubTimeStr = item.pubTime;
+        html += `<div id="section-${category.replace(/\s/g, '')}" class="section-title">📌 ${category} · ${categoryItems.length}条动态</div>`;
+        html += `<div class="news-list">`;
+        
+        categoryItems.forEach(item => {
+            // 格式化发布时间
+            let pubTimeStr = '时间未知';
+            if (item.pubTime) {
+                try {
+                    const pubDate = new Date(item.pubTime);
+                    if (!isNaN(pubDate.getTime())) {
+                        pubTimeStr = pubDate.toLocaleString('zh-CN', {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: false
+                        });
                     }
+                } catch(e) {
+                    pubTimeStr = item.pubTime;
                 }
-                
-                html += `
-                    <div class="news-item">
-                        <div class="news-header">
-                            <span class="store-badge">${escapeHtml(item.store)}</span>
-                            <span class="time">发布时间：${escapeHtml(pubTimeStr)}</span>
-                        </div>
-                        <div class="news-title">${escapeHtml(item.title)}</div>
-                        <div class="ai-block">
-                            <div class="summary"><strong>📝 核心提炼</strong> ${escapeHtml(item.summary || '暂无')}</div>
-                            <div class="impact"><strong>⚡ 影响分析</strong> ${escapeHtml(item.impact || '暂无')}</div>
-                        </div>
-                        <div class="links">
-                            ${item.links && item.links.length > 0 
-                                ? item.links.map(link => `<a href="${escapeHtml(link)}" target="_blank" rel="noopener noreferrer">🔗 相关链接</a>`).join('')
-                                : '<span class="time">暂无链接</span>'}
-                        </div>
+            }
+            
+            html += `
+                <div class="news-item">
+                    <div class="news-header">
+                        <span class="store-badge">${escapeHtml(item.store)}</span>
+                        <span class="time">发布时间：${escapeHtml(pubTimeStr)}</span>
                     </div>
-                `;
-            });
-            html += `</div>`;
-        }
-        
-        if (html === '') {
-            html = '<div class="loading">暂无数据，等待首次爬取...</div>';
-        }
-        container.innerHTML = html;
+                    <div class="news-title">${escapeHtml(item.title)}</div>
+                    <div class="ai-block">
+                        <div class="summary"><strong>📝 核心提炼</strong> ${escapeHtml(item.summary || '暂无')}</div>
+                        <div class="impact"><strong>⚡ 影响分析</strong> ${escapeHtml(item.impact || '暂无')}</div>
+                    </div>
+                    <div class="links">
+                        ${item.links && item.links.length > 0 
+                            ? item.links.map(link => `<a href="${escapeHtml(link)}" target="_blank" rel="noopener noreferrer">🔗 相关链接</a>`).join('')
+                            : '<span class="time">暂无链接</span>'}
+                    </div>
+                </div>
+            `;
+        });
+        html += `</div>`;
     }
-
+    
+    if (html === '') {
+        html = '<div class="loading">暂无数据，等待首次爬取...</div>';
+    }
+    container.innerHTML = html;
+}
 function calculateNextCrawlTime() {
     const now = new Date();
     // 设定爬取时间（北京时间）
