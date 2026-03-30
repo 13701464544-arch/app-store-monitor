@@ -16,18 +16,19 @@ const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
   //{ name: '华尔街', url: 'https://www.wsj.com/', type: 'html' }
 
 const SOURCES = [
-  // 官方商店动态 (RSS稳定)
+  // 官方商店动态
   { name: 'Apple Newsroom', url: 'https://www.apple.com/newsroom/rss-feed.xml', type: 'rss' },
   { name: 'Google Play 博客', url: 'https://blog.google/products/google-play/rss/', type: 'rss' },
-  { name: '小米应用商店', url: 'https://dev.mi.com/console/doc/rss?cid=85', type: 'rss' }, // 开发者公告，常含应用信息
-  // 科技媒体 (抓取RSS)
-  { name: '36氪-应用', url: 'https://36kr.com/feed', type: 'rss' },  // 36氪全站RSS
-  { name: '虎嗅-早报', url: 'https://www.huxiu.com/rss/0.xml', type: 'rss' },
+  { name: '小米应用商店开发者', url: 'https://dev.mi.com/console/doc/rss?cid=85', type: 'rss' },
+  { name: 'OPPO 开放平台', url: 'https://open.oppomobile.com/new/development', type: 'html' },
+  { name: 'VIVO 开放平台', url: 'https://dev.vivo.com.cn/document', type: 'html' },
+  
+  // 科技媒体（覆盖应用商店资讯）
+  { name: '36氪-应用', url: 'https://36kr.com/feed', type: 'rss' },
+  { name: '虎嗅-科技', url: 'https://www.huxiu.com/rss/0.xml', type: 'rss' },
   { name: '品玩', url: 'https://www.pingwest.com/feed', type: 'rss' },
   { name: '钛媒体', url: 'https://www.tmtpost.com/rss.xml', type: 'rss' },
   { name: 'Donews', url: 'https://www.donews.com/rss.xml', type: 'rss' },
-  // 部分国内资讯站仍提供RSS
-  { name: '搜狐科技', url: 'https://www.sohu.com/c/8/1460/feed.rss', type: 'rss' }
 ];
 
 const STORES = ['App Store', 'Google Play', '应用宝', 'OPPO软件商店', 'VIVO应用商店', '小米应用商店'];
