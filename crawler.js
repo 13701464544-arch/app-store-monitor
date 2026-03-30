@@ -7,22 +7,27 @@ const path = require('path');
 const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
 const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
 
+//  { name: 'OPPO 官网', url: 'https://www.oppo.com/cn/news/', type: 'html' },
+  //{ name: 'VIVO 官网', url: 'https://www.vivo.com.cn/news/', type: 'html' },
+  //{ name: '腾讯新闻', url: 'https://news.qq.com/', type: 'html' },
+  //{ name: '今日头条', url: 'https://www.toutiao.com/', type: 'html' },
+  //{ name: 'YouTube', url: 'https://www.youtube.com/feed/trending', type: 'html' },
+  //{ name: 'Donews', url: 'https://www.donews.com/', type: 'html' },
+  //{ name: '华尔街', url: 'https://www.wsj.com/', type: 'html' }
+
 const SOURCES = [
-  { name: 'Apple News', url: 'https://www.apple.com/newsroom/rss-feed.xml', type: 'rss' },
-  { name: 'Google 官方博客', url: 'https://blog.google/rss/', type: 'rss' },
-  { name: 'OPPO 官网', url: 'https://www.oppo.com/cn/news/', type: 'html' },
-  { name: 'VIVO 官网', url: 'https://www.vivo.com.cn/news/', type: 'html' },
-  { name: '小米官网', url: 'https://www.mi.com/index.html#news', type: 'html' },
-  { name: '腾讯新闻', url: 'https://news.qq.com/', type: 'html' },
-  { name: '今日头条', url: 'https://www.toutiao.com/', type: 'html' },
-  { name: '搜狐网', url: 'https://www.sohu.com/', type: 'html' },
-  { name: 'YouTube', url: 'https://www.youtube.com/feed/trending', type: 'html' },
-  { name: '36氪', url: 'https://36kr.com/', type: 'html' },
-  { name: '虎嗅', url: 'https://www.huxiu.com/', type: 'html' },
-  { name: '钛媒体', url: 'https://www.tmtpost.com/', type: 'html' },
-  { name: 'Donews', url: 'https://www.donews.com/', type: 'html' },
-  { name: '品玩', url: 'https://www.pingwest.com/', type: 'html' },
-  { name: '华尔街', url: 'https://www.wsj.com/', type: 'html' }
+  // 官方商店动态 (RSS稳定)
+  { name: 'Apple Newsroom', url: 'https://www.apple.com/newsroom/rss-feed.xml', type: 'rss' },
+  { name: 'Google Play 博客', url: 'https://blog.google/products/google-play/rss/', type: 'rss' },
+  { name: '小米应用商店', url: 'https://dev.mi.com/console/doc/rss?cid=85', type: 'rss' }, // 开发者公告，常含应用信息
+  // 科技媒体 (抓取RSS)
+  { name: '36氪-应用', url: 'https://36kr.com/feed', type: 'rss' },  // 36氪全站RSS
+  { name: '虎嗅-早报', url: 'https://www.huxiu.com/rss/0.xml', type: 'rss' },
+  { name: '品玩', url: 'https://www.pingwest.com/feed', type: 'rss' },
+  { name: '钛媒体', url: 'https://www.tmtpost.com/rss.xml', type: 'rss' },
+  { name: 'Donews', url: 'https://www.donews.com/rss.xml', type: 'rss' },
+  // 部分国内资讯站仍提供RSS
+  { name: '搜狐科技', url: 'https://www.sohu.com/c/8/1460/feed.rss', type: 'rss' }
 ];
 
 const STORES = ['App Store', 'Google Play', '应用宝', 'OPPO软件商店', 'VIVO应用商店', '小米应用商店'];
