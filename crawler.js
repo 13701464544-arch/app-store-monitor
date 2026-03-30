@@ -34,12 +34,93 @@ const STORES = ['App Store', 'Google Play', '应用宝', 'OPPO软件商店', 'VI
 
 function detectStore(title, content) {
   const text = (title + ' ' + content).toLowerCase();
-  if (text.includes('app store') || text.includes('ios')) return 'App Store';
-  if (text.includes('google play') || text.includes('android')) return 'Google Play';
-  if (text.includes('应用宝')) return '应用宝';
-  if (text.includes('oppo') && (text.includes('商店') || text.includes('软件商店'))) return 'OPPO软件商店';
-  if (text.includes('vivo') && (text.includes('商店') || text.includes('软件商店'))) return 'VIVO应用商店';
-  if (text.includes('小米') && (text.includes('商店') || text.includes('应用商店'))) return '小米应用商店';
+  
+  // ========== 1. App Store 相关 ==========
+  if (text.includes('app store') || 
+      text.includes('ios') || 
+      text.includes('苹果商店') ||
+      text.includes('苹果应用商店') ||
+      (text.includes('苹果') && (text.includes('应用') || text.includes('商店') || text.includes('app')))) {
+    return 'App Store';
+  }
+  
+  // ========== 2. Google Play 相关 ==========
+  if (text.includes('google play') || 
+      text.includes('android') || 
+      text.includes('谷歌商店') ||
+      text.includes('谷歌应用商店') ||
+      (text.includes('谷歌') && (text.includes('应用') || text.includes('商店')))) {
+    return 'Google Play';
+  }
+  
+  // ========== 3. 应用宝相关 ==========
+  if (text.includes('应用宝') || 
+      text.includes('腾讯应用宝')) {
+    return '应用宝';
+  }
+  
+  // ========== 4. OPPO 软件商店相关 ==========
+  if ((text.includes('oppo') || text.includes('欧普')) && 
+      (text.includes('软件商店') || text.includes('应用商店') || text.includes('商店'))) {
+    return 'OPPO软件商店';
+  }
+  // 单独提到 OPPO 应用/软件相关
+  if (text.includes('oppo') && (text.includes('应用') || text.includes('软件'))) {
+    return 'OPPO软件商店';
+  }
+  
+  // ========== 5. VIVO 应用商店相关 ==========
+  if ((text.includes('vivo') || text.includes('维沃')) && 
+      (text.includes('软件商店') || text.includes('应用商店') || text.includes('商店'))) {
+    return 'VIVO应用商店';
+  }
+  if (text.includes('vivo') && (text.includes('应用') || text.includes('软件'))) {
+    return 'VIVO应用商店';
+  }
+  
+  // ========== 6. 小米应用商店相关 ==========
+  if (text.includes('小米') && 
+      (text.includes('应用商店') || text.includes('应用市场') || text.includes('软件商店'))) {
+    return '小米应用商店';
+  }
+  if (text.includes('小米') && (text.includes('应用') || text.includes('软件'))) {
+    return '小米应用商店';
+  }
+  
+  // ========== 7. 华为应用市场（可选，您要求的是6个商店，但可以扩展）==========
+  if (text.includes('华为') && 
+      (text.includes('应用市场') || text.includes('应用商店') || text.includes('软件商店'))) {
+    return '其他';  // 如果您想单独显示华为，可以改为 '华为应用市场'
+  }
+  
+  // ========== 8. 通用应用商店关键词 ==========
+  // 当文章提到"应用商店"、"应用市场"等，但无法识别具体品牌时
+  if (text.includes('应用商店') || 
+      text.includes('应用市场') || 
+      text.includes('软件商店') || 
+      text.includes('软件市场') ||
+      text.includes('app store') ||
+      text.includes('google play')) {
+    return '其他应用商店';
+  }
+  
+  // ========== 9. 手机品牌相关（可能隐含应用商店）==========
+  // 如果提到手机品牌但没有明确商店，可能与应用相关
+  const phoneBrands = ['华为', '荣耀', '三星', '小米', 'oppo', 'vivo', '魅族', '一加', 'realme'];
+  for (const brand of phoneBrands) {
+    if (text.includes(brand) && (text.includes('应用') || text.includes('软件') || text.includes('商店'))) {
+      return '其他应用商店';
+    }
+  }
+  
+  // ========== 10. 游戏/应用分发相关 ==========
+  if (text.includes('游戏平台') || 
+      text.includes('应用分发') || 
+      text.includes('app分发') ||
+      text.includes('手游平台')) {
+    return '其他应用商店';
+  }
+  
   return '其他';
 }
 
