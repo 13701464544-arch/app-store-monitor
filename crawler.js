@@ -104,7 +104,7 @@ function detectStore(title, content) {
       text.includes('google play')) {
     return '其他应用商店';
   }
-  
+   
   // ========== 9. 手机品牌相关（可能隐含应用商店）==========
   // 如果提到手机品牌但没有明确商店，可能与应用相关
   const phoneBrands = ['华为', '荣耀', '三星', '小米', 'oppo', 'vivo', '魅族', '一加', 'realme'];
@@ -112,6 +112,7 @@ function detectStore(title, content) {
     if (text.includes(brand) && (text.includes('应用') || text.includes('软件') || text.includes('商店'))) {
       return '其他应用商店';
     }
+    
   }
   
   // ========== 10. 游戏/应用分发相关 ==========
