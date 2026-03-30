@@ -27,12 +27,20 @@ jobs:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
         run: npm run crawl
 
-      - name: 验证 data.json 是否生成
+      - name: 列出所有文件（调试用）
         run: |
-          echo "检查 public 目录内容："
-          ls -la public/
-          echo "验证 data.json 文件："
-          cat public/data.json | head -20 || echo "data.json 不存在！"
+          echo "当前目录结构："
+          ls -la
+          echo ""
+          echo "public 目录内容："
+          if [ -d "public" ]; then
+            ls -la public/
+          else
+            echo "public 目录不存在！"
+          fi
+          echo ""
+          echo "查找所有 data.json 文件："
+          find . -name "data.json" -type f 2>/dev/null || echo "未找到 data.json"
 
       - name: 部署到 GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
