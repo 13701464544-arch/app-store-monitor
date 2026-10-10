@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>应用生态 - 抬头看路</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background: #f5f7fc;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* 头部区域 */
+        .header {
+            background: white;
+            border-radius: 2rem;
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            background: linear-gradient(135deg, #1e3a5f, #2b6a9f);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .time-info {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            color: #4b6f8c;
+            font-weight: 500;
+            margin-top: 0.8rem;
+        }
+
+        /* 统计方格 2行3列 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 1.5rem;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid #eef2f8;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            background: #fefefe;
+        }
+
+        .stat-name {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #2c5a7a;
+        }
+
+        .stat-count {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #0f2e42;
+        }
+
+        /* 信息列表区域 */
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 1.5rem 0 1rem;
+            padding-left: 0.5rem;
+            border-left: 6px solid #2b6a9f;
+        }
+
+        .news-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        .news-item {
+            background: white;
+            border-radius: 1.5rem;
+            padding: 1.2rem 1.5rem;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+            transition: all 0.2s;
+        }
+
+        .news-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .news-header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 0.8rem;
+        }
+
+        .store-badge {
+            background: #e9f0f9;
+            padding: 0.2rem 0.8rem;
+            border-radius: 2rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #1d5b8e;
+        }
+
+        .time {
+            font-size: 0.75rem;
+            color: #7e95ae;
+        }
+
+        .news-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+            color: #1e3a5f;
+            line-height: 1.4;
+        }
+
+        /* AI 区块 - 上下排列 */
+        .ai-block {
+            display: block;
+            margin: 0.8rem 0;
+            background: #f8fafd;
+            padding: 0.8rem;
+            border-radius: 1rem;
+        }
+
+        .summary, .impact {
+            font-size: 0.9rem;
+            line-height: 1.4;
+            margin-bottom: 0.8rem;
+        }
+
+        .summary:last-child, .impact:last-child {
+            margin-bottom: 0;
+        }
+
+        .summary strong, .impact strong {
+            color: #2b6a9f;
+            display: block;
+            margin-bottom: 0.2rem;
+        }
+
+        .links {
+            margin-top: 0.5rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .links a {
+            background: #eef2fa;
+            padding: 0.3rem 0.8rem;
+            border-radius: 2rem;
+            font-size: 0.8rem;
+            text-decoration: none;
+            color: #1d5b8e;
+            transition: 0.1s;
+        }
+
+        .links a:hover {
+            background: #d9e4f0;
+            text-decoration: underline;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #6c86a3;
+        }
+
+        @media (max-width: 700px) {
+            body {
+                padding: 1rem;
+            }
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .news-header {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>📱 应用生态 - 抬头看路</h1>
+        <div class="time-info" id="timeInfo">
+            <span>🕒 最近爬取: --</span>
+            <span>⏰ 下次自动爬取: --</span>
+        </div>
+    </div>
+
+    <!-- 2行3列统计方格 -->
+    <div class="stats-grid" id="statsGrid"></div>
+
+    <!-- 各商店信息区域 -->
+    <div id="storeSections"></div>
+</div>
+
+<script>
+    // 主流应用商店列表
+    const STORES = ['App Store', 'Google Play', '应用宝', 'OVM等其他'];
+    let currentData = null;
+
+    // 获取数据
+    async function fetchData() {
+        try {
+            console.log('尝试加载 data.json...');
+            const res = await fetch('./data.json');
+            if (!res.ok) {
+                throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+            }
+            currentData = await res.json();
+            console.log('数据加载成功，共', currentData.items?.length, '条');
+            renderStats();
+            renderSections();
+            updateTimeInfo();
+        } catch (err) {
+            console.error('获取数据失败:', err);
+            document.getElementById('storeSections').innerHTML = 
+                `<div class="loading" style="color: red;">数据加载失败: ${err.message}<br>请检查 data.json 文件是否存在</div>`;
+        }
+    }
+
+ // 渲染统计卡片
+function renderStats() {
+    const stats = currentData?.storeStats || {};
+    
+    // 合并 OPPO、VIVO、小米 到 OVM等其他
+    const ovmCount = (stats['OPPO软件商店'] || 0) + 
+                     (stats['VIVO应用商店'] || 0) + 
+                     (stats['小米应用商店'] || 0) +
+                     (stats['其他应用商店'] || 0) +
+                     (stats['其他'] || 0);
+    
+    const aggregatedStats = {
+        'App Store': stats['App Store'] || 0,
+        'Google Play': stats['Google Play'] || 0,
+        '应用宝': stats['应用宝'] || 0,
+        'OVM等其他': ovmCount
+    };
+    
+    const grid = document.getElementById('statsGrid');
+    grid.innerHTML = STORES.map(store => `
+        <div class="stat-card" data-store="${store}">
+            <div class="stat-name">${store}</div>
+            <div class="stat-count">${aggregatedStats[store] || 0}</div>
+        </div>
+    `).join('');
+    
+    // 点击卡片滚动到对应区域
+    document.querySelectorAll('.stat-card').forEach(card => {
+        card.addEventListener('click', () => {
+            const store = card.dataset.store;
+            let targetId = '';
+            if (store === 'OVM等其他') {
+                targetId = 'section-OVM等其他';
+            } else {
+                targetId = `section-${store.replace(/\s/g, '')}`;
+            }
+            const target = document.getElementById(targetId);
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+}
+
+   // 渲染各商店的信息列表
+function renderSections() {
+    const items = currentData?.items || [];
+    
+    // 定义要显示的4个分类
+    const displayCategories = ['App Store', 'Google Play', '应用宝', 'OVM等其他'];
+    
+    // 定义哪些商店归入 OVM等其他
+    const ovmCategories = ['OPPO软件商店', 'VIVO应用商店', '小米应用商店', '其他应用商店', '其他'];
+    
+    // 按显示分类分组
+    const grouped = {
+        'App Store': [],
+        'Google Play': [],
+        '应用宝': [],
+        'OVM等其他': []
+    };
+    
+    items.forEach(item => {
+        const storeName = item.store;
+        if (storeName === 'App Store') {
+            grouped['App Store'].push(item);
+        } else if (storeName === 'Google Play') {
+            grouped['Google Play'].push(item);
+        } else if (storeName === '应用宝') {
+            grouped['应用宝'].push(item);
+        } else if (ovmCategories.includes(storeName)) {
+            grouped['OVM等其他'].push(item);
+        } else {
+            // 其他未分类的也归入 OVM等其他
+            grouped['OVM等其他'].push(item);
+        }
+    });
+    
+    const container = document.getElementById('storeSections');
+    let html = '';
+    
+    for (const category of displayCategories) {
+        const categoryItems = grouped[category] || [];
+        if (categoryItems.length === 0) continue;
+        
+        html += `<div id="section-${category.replace(/\s/g, '')}" class="section-title">📌 ${category} · ${categoryItems.length}条动态</div>`;
+        html += `<div class="news-list">`;
+        
+        categoryItems.forEach(item => {
+            // 格式化发布时间
+            let pubTimeStr = '时间未知';
+            if (item.pubTime) {
+                try {
+                    const pubDate = new Date(item.pubTime);
+                    if (!isNaN(pubDate.getTime())) {
+                        pubTimeStr = pubDate.toLocaleString('zh-CN', {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: false
+                        });
+                    }
+                } catch(e) {
+                    pubTimeStr = item.pubTime;
+                }
+            }
+            
+            html += `
+                <div class="news-item">
+                    <div class="news-header">
+                        <span class="store-badge">${escapeHtml(item.store)}</span>
+                        <span class="time">发布时间：${escapeHtml(pubTimeStr)}</span>
+                    </div>
+                    <div class="news-title">${escapeHtml(item.title)}</div>
+                    <div class="ai-block">
+                        <div class="summary"><strong>📝 核心提炼</strong> ${escapeHtml(item.summary || '暂无')}</div>
+                        <div class="impact"><strong>⚡ 影响分析</strong> ${escapeHtml(item.impact || '暂无')}</div>
+                    </div>
+                    <div class="links">
+                        ${item.links && item.links.length > 0 
+                            ? item.links.map(link => `<a href="${escapeHtml(link)}" target="_blank" rel="noopener noreferrer">🔗 相关链接</a>`).join('')
+                            : '<span class="time">暂无链接</span>'}
+                    </div>
+                </div>
+            `;
+        });
+        html += `</div>`;
+    }
+    
+    if (html === '') {
+        html = '<div class="loading">暂无数据，等待首次爬取...</div>';
+    }
+    container.innerHTML = html;
+}
+function calculateNextCrawlTime() {
+    const now = new Date();
+    // 设定爬取时间（北京时间）
+    const crawlTimes = [
+        { hour: 8, minute: 50 },   // 08:50
+        { hour: 14, minute: 0 }    // 14:00
+    ];
+    
+    // 获取当前北京时间（UTC+8）
+    const getBeijingTime = (date) => {
+        return new Date(date.getTime() + (8 * 60 * 60 * 1000));
+    };
+    
+    const beijingNow = getBeijingTime(now);
+    const currentYear = beijingNow.getUTCFullYear();
+    const currentMonth = beijingNow.getUTCMonth();
+    const currentDay = beijingNow.getUTCDate();
+    
+    // 找出下一个爬取时间
+    let nextTime = null;
+    
+    // 将今天的爬取时间排序
+    const todayTimes = crawlTimes.map(time => {
+        return {
+            hour: time.hour,
+            minute: time.minute,
+            timestamp: Date.UTC(currentYear, currentMonth, currentDay, time.hour, time.minute, 0)
+        };
+    }).sort((a, b) => a.timestamp - b.timestamp);
+    
+    // 找出今天还未发生的第一个爬取时间
+    const nowTimestamp = beijingNow.getTime();
+    for (const time of todayTimes) {
+        if (time.timestamp > nowTimestamp) {
+            nextTime = time;
+            break;
+        }
+    }
+    
+    // 如果今天已经没有爬取时间了，取明天的第一个
+    if (!nextTime) {
+        const firstTime = crawlTimes[0];
+        nextTime = {
+            hour: firstTime.hour,
+            minute: firstTime.minute,
+            timestamp: Date.UTC(currentYear, currentMonth, currentDay + 1, firstTime.hour, firstTime.minute, 0)
+        };
+    }
+    
+    // 转换回 UTC 时间返回
+    return new Date(nextTime.timestamp - (8 * 60 * 60 * 1000));
+}
+
+function updateTimeInfo() {
+    if (!currentData) return;
+    
+    const last = new Date(currentData.lastCrawl);
+    const next = calculateNextCrawlTime();
+    
+    const formatTime = (date) => {
+        if (isNaN(date.getTime())) return '时间未知';
+        return date.toLocaleString('zh-CN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+        });
+    };
+    
+    document.getElementById('timeInfo').innerHTML = `
+        <span>🕒 最近爬取: ${formatTime(last)}</span>
+        <span>⏰ 下次自动爬取: ${formatTime(next)}</span>
+    `;
+}
+
+    // 防止 XSS 攻击
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    // 页面加载时获取数据，之后每60秒自动刷新
+    fetchData();
+    setInterval(fetchData, 60000);
+</script>
+</body>
+</html>
