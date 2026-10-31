@@ -1,0 +1,13 @@
+{
+  "name": "app-store-monitor",
+  "version": "1.0.0",
+  "description": "每小时爬取应用商店资讯，AI提炼并生成静态页面",
+  "scripts": {
+    "crawl": "node crawler.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "cheerio": "^1.0.0-rc.12",
+    "dotenv": "^16.3.1"
+  }
+}
